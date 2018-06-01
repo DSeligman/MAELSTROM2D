@@ -1,6 +1,7 @@
-//MAELSTROM 3D v1.0
+//MAELSTROM 2D v1.1
 //Vorticity Conserving Scheme for the Euler Equations in 3 Dimensions
-//v1.0 08/03/2017
+//v1.1 06/01/2018
+//The set up here is a 1d Shear Wave
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -154,40 +155,18 @@ int main()
   double * cs = NULL;
   cs=new double[nx*ny];
   //initial conditions
-  double costheta;
-  double sintheta;
-  double rhov1, v1;
-  double rhov2,v2;
-  double x1;
-  double x2;
-  double epsilon = 1e-6;
+
   double pi = 3.14159265358979323846;
-  double lambda = 2./5.;
+  double M=2.*pi;
   for(int i=0;i<nx;i++){
     for(int j=0;j<ny;j++){
-      costheta = 1./sqrt(5);
-      sintheta=2./sqrt(5);
 
-      x1= xg[i]*costheta + yg[j]*sintheta;
-      x2 = -xg[i]*sintheta + yg[j]*costheta;
-      
-      rho[i*ny+j]=1.0+epsilon*12./(6.*sqrt(5))*cos(2.*pi*x1/lambda);
-      rhov1 = 1.0+6/(6.*sqrt(5))*epsilon*cos(2.*pi*x1/lambda);
-      rhov2 =  0.0+8.*sqrt(2)/(6.*sqrt(5))*epsilon*cos(2.*pi*x1/lambda);
-      v1 = rhov1/rho[i*ny+j];
-      v2 = rhov2/rho[i*ny+j];
-      
-      //uy[i*ny+j] = sintheta;//1./sintheta*(v1 - costheta*costheta*v1+costheta*sintheta*v2);
-      //ux[i*ny+j] = 1./(costheta+sintheta*sintheta/costheta);//costheta*v1-sintheta*v2;
-      uy[i*ny+j]=v1*sintheta+v2*costheta;
-      ux[i*ny+j]=v1*costheta-sintheta*v2;
-
-      E[i*ny+j]=rho[i*ny+j]*1.0/(gamma *(gamma-1.))+.5*rho[i*ny+j]*(ux[i*ny+j]*ux[i*ny+j]+ \
-								    uy[i*ny+j]*uy[i*ny+j])+ \
-	epsilon*cos(2.*pi*x1/lambda)*9./6./sqrt(5);
-      
+      rho[i*ny+j]=1.0;
+      ux[i*ny+j]=.1*sin(M *yg[j]) ;//.1*drand48();                                                   
+      uy[i*ny+j]=0.;//.1*sin(M *yg[j]) ;                                                             
+      E[i*ny+j]=1.0/(gamma*(gamma-1.));
       p[i*ny+j]=0.;
-      cs[i*ny+j]=0.;
+      cs[i*ny+j]=1.;
     }}
   if(have_E==false){
     for(int i=0;i<nx*ny;i++){

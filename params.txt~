@@ -15,3 +15,5 @@ XSTART -0.0
 YSTART -0.0
 READOUTCADENCE .5
 EOSTYPE 1
+nghosts 1
+viscosity 0

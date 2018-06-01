@@ -1,6 +1,7 @@
-//MAELSTROM 3D v1.0
+//MAELSTROM 2D v1.1
 //Vorticity Conserving Scheme for the Euler Equations in 3 Dimensions
-//v1.0 08/03/2017
+//v1.1 06/01/2018
+//The set up here is a 1d Shear Wave
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -76,8 +77,7 @@ int main()
   viscosity = inputs[18];
   double gamma = 5./3.;
   //int nsteps = 10;
-  extentx=2./sqrt(5);
-  extenty=1./sqrt(5);
+
   //instantiate the grid
   nx = nxmghost+2*nghosts;
   ny=nymghost+2*nghosts;
