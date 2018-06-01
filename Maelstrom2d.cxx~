@@ -76,7 +76,8 @@ int main()
   viscosity = inputs[18];
   double gamma = 5./3.;
   //int nsteps = 10;
-
+  extentx=2./sqrt(5);
+  extenty=1./sqrt(5);
   //instantiate the grid
   nx = nxmghost+2*nghosts;
   ny=nymghost+2*nghosts;

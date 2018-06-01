@@ -8,16 +8,18 @@ using namespace std;
 //Here we will define the boundary condition functions
 //These are three dimensional boundaries
 //note to compile MAELSTROM3D compiler must be linked to boundaries.cxx
-void BC(double *q, int nx, int ny, \
-	int xbtype, int ybtype,  int vartype){
+void BC(double *q,double *qi, int nx, int ny,			\
+	int xbtype, int ybtype,  int vartype,int nghosts){
   /* the parameter btype tells the code what type of boundary condition to apply          
      btype = 1 ---- Periodic WRAP boundary condition                                       
-     btype = 2 ---- Reflecting Boundary condition  */
+     btype = 2 ---- Reflecting Boundary condition  
+     btype = 3 ---- Analytic Boundary condition
+  */
   
-  boundary(q,nx,ny,1,1,2,xbtype,vartype);
-  boundary(q,nx,ny,1,2,2,xbtype,vartype);
-  boundary(q,nx,ny,2,1,2,ybtype,vartype);
-  boundary(q,nx,ny,2,2,2,ybtype,vartype);
+  boundary(q,qi,nx,ny,1,1,nghosts,xbtype,vartype);
+  boundary(q,qi,nx,ny,1,2,nghosts,xbtype,vartype);
+  boundary(q,qi,nx,ny,2,1,nghosts,ybtype,vartype);
+  boundary(q,qi,nx,ny,2,2,nghosts,ybtype,vartype);
 
 
     
@@ -25,7 +27,8 @@ void BC(double *q, int nx, int ny, \
 
 
 
-void boundary(double *q, int nx, int ny,int dim, int side, int nghosts, int btype, \
+void boundary(double *q,double *qi, int nx, int ny,\
+	      int dim, int side, int nghosts, int btype,	\
 	      int vartype){
   //wrapper function for all  boundary condition
   /*optional flags and default settings are:
@@ -70,6 +73,9 @@ void boundary(double *q, int nx, int ny,int dim, int side, int nghosts, int btyp
   if(btype==1){
     periodic(q,nx,ny,dim,side,nghosts);
   }
+  //analytic boundary
+  if(btype==3){
+    analytic(q,qi,nx,ny,dim,side,nghosts);}
   /*if(btype==2){
     switch(vartype){
     case 0 :
@@ -93,33 +99,98 @@ void periodic(double *q, int nx, int ny, int dim, int side, int nghosts){
   //x boundary
   if(dim==1){
     if(side == 1){
-      for(int j=0;j<ny;j++){
-	//for(int k=0;k<nz;k++){
-	q[0*ny+(j)]=q[(nx-4)*ny+(j)];
-	q[1*ny+(j)]=q[(nx-3)*ny+(j)];}}
+      if(nghosts == 2){
+	for(int j=0;j<ny;j++){
+	  //for(int k=0;k<nz;k++){
+	  q[0*ny+(j)]=q[(nx-4)*ny+(j)];
+	  q[1*ny+(j)]=q[(nx-3)*ny+(j)];}}
+      if(nghosts == 1){
+	for(int j=0;j<ny;j++){
+	  q[0*ny+(j)]=q[(nx-2)*ny+(j)];}}
+    }
+    
     if(side ==2){
-      for(int j=0;j<ny;j++){
-        //for(int k=0;k<nz;k++){
+      if(nghosts == 2){
+	for(int j=0;j<ny;j++){
+	  //for(int k=0;k<nz;k++){
           q[(nx-1)*ny+(j)]=q[3*ny+(j)];
           q[(nx-2)*ny+(j)]=q[2*ny+(j)];}}
+      if(nghosts == 1){
+	for(int j=0;j<ny;j++){
+	  q[(nx-1)*ny+(j)]=q[1*ny+(j)];}
+
+      }}
+    
   }
-  
   if(dim==2){
     if(side == 1){
-      for(int i=0;i<nx;i++){
-        //for(int k=0;k<nz;k++){
-	q[i*ny+(0)]=q[i*ny+(ny-4)];
-	q[i*ny+(1)]=q[i*ny+(ny-3)];}}
+      if(nghosts==2){
+	for(int i=0;i<nx;i++){
+	  //for(int k=0;k<nz;k++){
+	  q[i*ny+(0)]=q[i*ny+(ny-4)];
+	  q[i*ny+(1)]=q[i*ny+(ny-3)];}}
+      if(nghosts==1){
+	for(int i=0;i<nx;i++){
+	  q[i*ny+(0)]=q[i*ny+(ny-2)];}}}
     if(side ==2){
-      for(int i=0;i<nx;i++){
-        //for(int k=0;k<nz;k++){
+      if(nghosts==2){
+	for(int i=0;i<nx;i++){
+	  //for(int k=0;k<nz;k++){
           q[i*ny+(ny-1)]=q[i*ny+(3)];
           q[i*ny+(ny-2)]=q[i*ny+(2)];}}
+      if(nghosts==1){
+	for(int i=0;i<nx;i++){
+	  q[i*ny+(ny-1)]=q[i*ny+(1)];}}
+    }}
+}
+void analytic(double *q,double*qi, int nx, int ny, int dim, int side, int nghosts){
+ 
+  //x boundary                                                                                                                         
+  if(dim==1){
+    if(side == 1){
+      if(nghosts == 2){
+        for(int j=0;j<ny;j++){
+          //for(int k=0;k<nz;k++){                                                                                                     
+          q[0*ny+(j)]=qi[0*ny+(j)];
+          q[1*ny+(j)]=qi[1*ny+(j)];}}
+      if(nghosts == 1){
+        for(int j=0;j<ny;j++){
+          q[0*ny+(j)]=qi[0*ny+(j)];}}
+    }
+
+    if(side ==2){
+      if(nghosts == 2){
+        for(int j=0;j<ny;j++){
+          //for(int k=0;k<nz;k++){                                                                                                     
+          q[(nx-1)*ny+(j)]=qi[(nx-1)*ny+(j)];
+          q[(nx-2)*ny+(j)]=qi[(nx-2)*ny+(j)];}}
+      if(nghosts == 1){
+        for(int j=0;j<ny;j++){
+          q[(nx-1)*ny+(j)]=qi[(nx-1)*ny+(j)];}
+
+      }}
+
   }
-
-
-
-	    
+  if(dim==2){
+    if(side == 1){
+      if(nghosts==2){
+        for(int i=0;i<nx;i++){
+          //for(int k=0;k<nz;k++){                                                                                                     
+          q[i*ny+(0)]=qi[i*ny+(0)];
+          q[i*ny+(1)]=qi[i*ny+(1)];}}
+      if(nghosts==1){
+        for(int i=0;i<nx;i++){
+          q[i*ny+(0)]=qi[i*ny+(0)];}}}
+    if(side ==2){
+      if(nghosts==2){
+        for(int i=0;i<nx;i++){
+          //for(int k=0;k<nz;k++){                                                                                                     
+          q[i*ny+(ny-1)]=qi[i*ny+(ny-1)];
+          q[i*ny+(ny-2)]=qi[i*ny+(ny-2)];}}
+      if(nghosts==1){
+        for(int i=0;i<nx;i++){
+          q[i*ny+(ny-1)]=qi[i*ny+(ny-1)];}}
+    }}
 }
 void reflect(double *q, int nx, int ny, int nz, int dim, int side, int nghosts){
   // here we implement the REFLECTING BOUNDARY CONDITIONS
