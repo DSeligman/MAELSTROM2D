@@ -124,6 +124,9 @@ int main()
   
   cout<<"Nx without ghosts = "<<nxmghost<<" on domain "<< xg[nghosts]<<"  up   to   "<<xg[nx-1-nghosts]<<endl;
   cout<<"Ny without ghosts= "<<nymghost<<" on domain "<< yg[nghosts]<<"  up   to   "<<yg[ny-1-nghosts]<<endl;
+  cout<<"DX = "<<dx<<endl;
+  cout<<"DY = "<<dy<<endl;
+  
   double dt=10.;
   //double cs = 1.; //sound speed
   //instantiate density and velocities and pressure
@@ -167,7 +170,7 @@ int main()
     for(int j=0;j<ny;j++){
       cs[i*ny+j]=1.;
       //set up hydrostatic equilibrium
-      rho[i*ny+j]=rho0*exp(1.*yg[j]*g/cs[i*ny+j]);
+      //rho[i*ny+j]=rho0*exp(1.*yg[j]*g/cs[i*ny+j]);
       
       //set up the x velocity shear
       ux[i*ny+j]=.1*sin(M *yg[j]) ;//.1*drand48();                                                   
@@ -177,9 +180,29 @@ int main()
       p[i*ny+j]=0.;
       cs[i*ny+j]=1.;
     }}
+  
+  for(int i=0;i<nx;i++){
+    int  j = 0;
+    rho[i*ny+j] =1.;}
+  for(int i=0;i<nx;i++){
+    int  j = 2;
+    rho[i*ny+j] =exp(-2.*dy);}
+
+  
+  for(int i=0;i<nx;i++){
+    int  j = 1;
+    rho[i*ny+j] =1./(g*dy*2.)*(rho[i*ny+j+1]-rho[i*ny+j-1]);}
+
+      //1.*g*dy*2.*rho[i*ny+(j-1)]+rho[i*ny+(j-2)];}
+  for(int i=0;i<nx;i++){
+    for(int j=3;j<ny;j++){
+      rho[i*ny+j] = 1.*g*dy*2.*rho[i*ny+(j-1)]+rho[i*ny+(j-2)];}}
   if(have_E==false){
     for(int i=0;i<nx*ny;i++){
       cs[i]=1.0;}}
+
+  for(int j=0;j<ny;j++){
+    cout<<"density in cell"<<j<<" = " << rho[25*ny+j]<<endl;}
   
   //EOS call
   EOS(p,cs,E,rho,ux,uy,nx,ny,gamma,EOStype);
